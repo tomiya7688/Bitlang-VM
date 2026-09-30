@@ -11,6 +11,7 @@ Bitlang
     -> Bitlang Explicit
     -> Bitlang Low
     -> Bitlang VM Backend
+       [optional internal TreeObject IR]
     -> Bitlang VM Assembly (Assam Core profile)
     -> Bitlang VM
                      -> x64 translator
@@ -30,6 +31,9 @@ The Bitlang VM implementation is written in **Go**.
 
 - **Assam** owns the shared assembly syntax, Core profile, instruction definitions, and reference semantics.
 - **Bitlang VM Backend** lowers validated Bitlang Low into Assam Core / Bitlang VM Assembly.
+- **TreeObject**, when used, is an optional private/internal IR or serialization format inside the Bitlang VM Backend. It is not a required public pipeline language, VM input format, or architecture-translator input contract.
+- A backend implementation may lower Low directly to Assam Core without materializing TreeObject.
+- If TreeObject is materialized, it may contain resolved CFG, symbols, constants, target layout, helper calls, and other backend-ready data, but it must not require the VM or architecture translators to reconstruct Bitlang ownership/class/borrow semantics.
 - **Bitlang VM** loads and executes the resulting low-level program.
 - The VM must not reconstruct Bitlang source semantics that should already have been lowered by the backend.
 - The VM must not duplicate a drifting private copy of the Assam grammar.
