@@ -75,12 +75,18 @@ Full Assam may retain pseudo-instructions or convenience instructions, but they 
 
 The VM target and backend must preserve Bitlang Low semantics, including where relevant:
 
-- canonical arbitrary semantic bit widths and signedness;
-- checked arithmetic and deterministic shift behavior;
+- canonical arbitrary semantic bit widths, two's-complement signed representation, and deterministic div/mod behavior;
+- checked/discard arithmetic and shift behavior;
+- canonical Bool semantics without host-language truthiness;
+- target-defined Address / Size / Offset widths;
 - explicit runtime checks and trap/error paths;
-- bounds-checked memory access where validity was not proven statically;
+- bounds-checked fixed/runtime-length array access where validity was not proven statically;
+- runtime-length Array descriptors as guest pointer + guest Size;
+- UTF-8 Str/Char semantics as guest bytes + guest Size rather than Go string layout;
+- deterministic exact-layout records where used;
 - deterministic evaluation/control-flow behavior;
 - explicit ownership/release effects already lowered into executable operations;
+- canonical alloc/try-alloc/free/trap runtime-helper semantics using guest allocation identity;
 - validated Ptr/Ref guarantees without reintroducing invalid operations;
 - a defined Bitlang VM target ABI, memory model, pointer width, alignment, and struct layout.
 
