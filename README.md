@@ -167,6 +167,10 @@ This makes the Go implementation a bootstrap/reference implementation rather tha
 ### Consequences
 
 - The same canonical VM implementation can be transported to every target supported by Assam translation.
+- A target only needs the VM implementation to be translated once in order to become capable of running arbitrary compatible Bitlang VM Assembly programs without translating every guest program to that target ISA.
+- This creates two valid deployment modes:
+  - **direct translation/AOT**: translate each Core program directly to the target;
+  - **hosted VM**: translate the Bitlang VM itself once, then execute unchanged Core programs on that VM.
 - The VM can execute another instance of itself, enabling VM-on-VM and recursive conformance tests.
 - Native translators can compile the VM implementation itself without a target-specific VM rewrite.
 - Custom CPU / FPGA developers can potentially obtain a Bitlang VM for their target by supplying the Assam mapping required for that target.
