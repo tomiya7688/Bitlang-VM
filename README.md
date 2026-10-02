@@ -55,6 +55,32 @@ A Core instruction does not need to map to exactly one native instruction. One C
 
 Target-specific code should be limited to genuinely target-specific encoding, register/calling-convention adaptation, relocation, and other unavoidable backend mechanics. Semantic meaning must not be hidden inside large hand-written per-architecture lowering branches when the operation can instead be expressed as a combination of simpler Core instructions.
 
+
+## Future bytecode translation targets
+
+After the required native architecture path is established, Bitlang VM Assembly should also support later-phase translation to:
+
+- WebAssembly (Wasm)
+- JVM bytecode
+
+These are planned official targets, but they are **not** part of the initial x64 / ARM64 / RISC-V acceptance gate.
+
+Because Wasm and JVM bytecode use stack-oriented execution models and impose structural constraints that differ from native ISAs, they do not have to be implemented as pure one-step JSON instruction substitution.
+
+The expected path is:
+
+```text
+Bitlang VM Assembly / Assam Core
+    -> target normalization / stack lowering
+    -> Wasm or JVM bytecode
+```
+
+Simple opcode correspondence may reuse the Assam JSON mapping system, while CFG restructuring, stack scheduling, verifier/type adaptation, bytecode container emission, and runtime-memory adaptation may use dedicated target passes.
+
+The target passes must consume only already-lowered Assam Core semantics. They must not reconstruct Bitlang Low ownership, borrow, class, closure, or other high-level language concepts.
+
+Wasm/JVM support must not cause Assam Core to gain target-specific high-level instructions.
+
 ## Core simplicity requirement
 
 Assam Core / Bitlang VM Assembly must consist of **very small, explicit, RISC-like operations**.
