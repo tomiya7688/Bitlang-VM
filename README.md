@@ -129,6 +129,66 @@ The Bitlang VM instruction/profile design is not considered complete until:
 - mapping/conformance tests prevent an instruction from being added to Core without required architecture coverage;
 - target translation does not depend on reconstructing Bitlang Low or higher-level language semantics.
 
+
+## Self-definition / self-hosted VM requirement
+
+Bitlang VM must eventually be expressible by Bitlang VM Assembly itself.
+
+The VM implementation may be authored directly in Assam Core / Bitlang VM Assembly, or it may be authored in Bitlang and lowered through the ordinary Bitlang -> Bitlang Low -> Bitlang VM Assembly pipeline. The requirement is about the resulting executable definition: the VM must not require hidden Go-only semantics that cannot be represented through the documented Core instruction set and runtime ABI.
+
+The intended bootstrap model is:
+
+```text
+Go reference/bootstrap VM
+    -> executes canonical VM implementation in Bitlang VM Assembly
+
+Bitlang source implementation of VM (optional authoring form)
+    -> Bitlang Explicit
+    -> Bitlang Low
+    -> Bitlang VM Assembly
+    -> canonical self-hosted VM program
+```
+
+Once the canonical VM implementation exists as Core:
+
+```text
+canonical Bitlang VM Assembly implementation of Bitlang VM
+    -> Go reference VM                (VM-on-VM)
+    -> x64 translation                (native Bitlang VM)
+    -> ARM64 translation              (native Bitlang VM)
+    -> RISC-V translation             (native Bitlang VM)
+    -> later Wasm translation         (Wasm-hosted Bitlang VM)
+    -> later JVM bytecode translation (JVM-hosted Bitlang VM)
+    -> developer mapping              (custom CPU / FPGA-hosted Bitlang VM)
+```
+
+This makes the Go implementation a bootstrap/reference implementation rather than the permanent semantic definition of the VM.
+
+### Consequences
+
+- The same canonical VM implementation can be transported to every target supported by Assam translation.
+- The VM can execute another instance of itself, enabling VM-on-VM and recursive conformance tests.
+- Native translators can compile the VM implementation itself without a target-specific VM rewrite.
+- Custom CPU / FPGA developers can potentially obtain a Bitlang VM for their target by supplying the Assam mapping required for that target.
+- The reference Go VM and the self-hosted VM can be differential-tested against the same conformance corpus.
+- VM semantics remain independent from Go object layout, Go integer behavior, or other host implementation details.
+
+### Non-cheating rule
+
+Self-definition is not satisfied by moving essential VM semantics into opaque host callbacks.
+
+A small, explicitly specified runtime/host ABI is allowed for unavoidable environment interaction such as process I/O, host memory reservation, clocks, or platform services. Core execution semantics, guest memory semantics, arithmetic/trap behavior, instruction dispatch, and other VM-defined behavior must remain implementable by the self-hosted program.
+
+### Self-hosting acceptance
+
+The self-hosted VM milestone is reached when:
+
+- one canonical VM implementation can be produced as valid Bitlang VM Assembly;
+- the Go reference VM can execute that implementation;
+- that self-hosted VM can execute the shared Core conformance programs;
+- its observable results match the Go reference VM;
+- the same canonical VM implementation can pass through the required x64 / ARM64 / RISC-V translation pipeline without source-level VM rewrites.
+
 ## Current status
 
 Initial architecture and Assam Core compatibility are being specified before the execution engine is expanded.
