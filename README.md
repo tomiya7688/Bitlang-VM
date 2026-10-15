@@ -102,6 +102,8 @@ Full Assam may retain pseudo-instructions or convenience instructions, but they 
 The VM target and backend must preserve Bitlang Low semantics, including where relevant:
 
 - canonical arbitrary semantic bit widths, two's-complement signed representation, and deterministic div/mod behavior;
+- unbounded-width signed/unsigned integers (`Int<Radix>x*` / `Uint<Radix>x*`) without inventing a host-sized `W`, silently truncating, or treating resource exhaustion as numeric overflow; distinguish true invalid zero-bit numeric types (`x0`);
+- zero-payload values such as `Strx0`, fixed zero-length arrays, and zero-field structs, preserving logical indexes/identity/borrow/ownership independently of physical storage size or pointer representation;
 - checked/discard arithmetic and shift behavior;
 - canonical Bool semantics without host-language truthiness;
 - target-defined Address / Size / Offset widths;
